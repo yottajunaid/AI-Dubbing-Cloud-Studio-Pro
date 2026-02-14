@@ -36,7 +36,10 @@ A professional, automated workflow manager for dubbing videos. This application 
 
 **Installation:**
 1.  Clone this repository.
-2.  Run the setup script to create folders and install dependencies:
+2.  Go in the project folder : `cd AI-Dubbing-Cloud-Studio-Pro`
+3.  Make a new folder named `video` inside AI-Dubbing-Cloud-Studio-Pro folder
+4.  Move all your `.mp4` videos inside `video` folder
+5.  Run the setup script to create sub-folders and install dependencies:
     ```bash
     python setup.py
     ```
