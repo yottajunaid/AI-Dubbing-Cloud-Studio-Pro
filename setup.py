@@ -9,7 +9,6 @@ import shutil
 print("--- AI Dubbing Studio (Cloud Edition) Setup ---\n")
 
 # 1. Install LIGHTWEIGHT Python Packages
-# Removed: torch, kokoro, openai-whisper (These run on Cloud now)
 print("Installing Client dependencies...")
 dependencies = ["streamlit", "requests", "soundfile", "numpy", "watchdog"] 
 subprocess.check_call([sys.executable, "-m", "pip", "install"] + dependencies)
@@ -28,7 +27,6 @@ if sys.platform == "win32":
             urllib.request.urlretrieve(url, zip_name)
             print("Extracting...")
             with zipfile.ZipFile(zip_name, 'r') as z:
-                # Find the bin/ffmpeg.exe in the zip
                 for file in z.namelist():
                     if file.endswith("ffmpeg.exe"):
                         with z.open(file) as zf, open("ffmpeg.exe", 'wb') as f:
@@ -53,45 +51,58 @@ elif sys.platform == "linux":
         subprocess.run(["sudo", "apt-get", "update"])
         subprocess.run(["sudo", "apt-get", "install", "-y", "ffmpeg"])
 
-# 3. Setup Project Directories
+# 3. Setup Project Directories (HARDCODED TO 'video' FOLDER)
 print("\n--- Project Configuration ---")
-default_path = os.getcwd()
-print(f"Current folder: {default_path}")
+project_root = os.getcwd()
+video_dir = os.path.join(project_root, "video")
 
-use_current = input("Use current folder for videos? (y/n): ").lower().strip()
-if use_current == 'y':
-    base_dir = default_path
+print(f"Project Root: {project_root}")
+print(f"Target Video Directory: {video_dir}")
+
+# Ensure the 'video' folder exists
+if not os.path.exists(video_dir):
+    os.makedirs(video_dir)
+    print(f"✅ Created missing 'video' folder at: {video_dir}")
+    print("⚠️  REMINDER: Please move your .mp4 files into this 'video' folder before continuing!")
 else:
-    base_dir = input(r"Enter the full path to your video folder: ").strip()
+    print(f"✅ Found 'video' folder.")
 
-# Create required subfolders
+# We set base_dir to the 'video' folder so app.py finds the mp4s there
+base_dir = video_dir 
+
+# Create required subfolders INSIDE the video folder
+# This keeps everything together: /video/captions, /video/audio, etc.
 folders = ["captions", "subtitles", "exports", "audio", "bgm"]
 for folder in folders:
     path = os.path.join(base_dir, folder)
     os.makedirs(path, exist_ok=True)
     print(f"Checked/Created: {path}")
 
-# 4. Rename Videos (ADDED BACK)
-print("\nRenaming videos sequentially...")
-existing_mp4s = [f for f in os.listdir(base_dir) if f.lower().endswith(".mp4")]
+# 4. Rename Videos
+print("\nRenaming videos in 'video' folder sequentially...")
+# Check if dir is empty
+if len(os.listdir(base_dir)) == 0:
+    print("⚠️  No files found in 'video' folder. Skipping rename.")
+else:
+    existing_mp4s = [f for f in os.listdir(base_dir) if f.lower().endswith(".mp4")]
 
-highest_num = 0
-for f in existing_mp4s:
-    name = os.path.splitext(f)[0]
-    if name.isdigit():
-        highest_num = max(highest_num, int(name))
+    highest_num = 0
+    for f in existing_mp4s:
+        name = os.path.splitext(f)[0]
+        if name.isdigit():
+            highest_num = max(highest_num, int(name))
 
-to_rename = [f for f in existing_mp4s if not os.path.splitext(f)[0].isdigit()]
+    to_rename = [f for f in existing_mp4s if not os.path.splitext(f)[0].isdigit()]
 
-current_index = highest_num + 1
-for video in to_rename:
-    old_path = os.path.join(base_dir, video)
-    new_path = os.path.join(base_dir, f"{current_index}.mp4")
-    os.rename(old_path, new_path)
-    print(f"Renamed: {video} -> {current_index}.mp4")
-    current_index += 1
+    current_index = highest_num + 1
+    for video in to_rename:
+        old_path = os.path.join(base_dir, video)
+        new_path = os.path.join(base_dir, f"{current_index}.mp4")
+        os.rename(old_path, new_path)
+        print(f"Renamed: {video} -> {current_index}.mp4")
+        current_index += 1
 
-# 5. Generate Blank Scripts (INCREASED TO 100)
+# 5. Generate Blank Scripts (1-100)
 print("\nGenerating blank script files (1-100)...")
 captions_dir = os.path.join(base_dir, "captions")
 for i in range(1, 101):
@@ -100,10 +111,12 @@ for i in range(1, 101):
         open(f_path, 'a').close()
 
 # 6. Save Configuration
+# This tells app.py to look inside the 'video' folder for everything
 config_data = {"base_dir": base_dir}
 with open("config.json", "w") as f:
     json.dump(config_data, f)
 print(f"\nSaved config.json pointing to: {base_dir}")
 
 print("\n✅ Setup Complete!")
+print("Make sure your .mp4 files are in the 'video' folder.")
 print("Run the app with: streamlit run app.py")
