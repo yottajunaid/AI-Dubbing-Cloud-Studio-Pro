@@ -58,6 +58,16 @@ A professional, automated workflow manager for dubbing videos. This application 
 
 ---
 
+## Screenshots
+<img width="1917" height="956" alt="image" src="https://github.com/user-attachments/assets/f3c7983f-541f-4ccc-b784-e9eba6e58a9f" />
+<img width="1918" height="243" alt="image" src="https://github.com/user-attachments/assets/2c69c652-ebe8-4c9c-8d2d-6eabc1c20098" />
+<img width="1288" height="842" alt="image" src="https://github.com/user-attachments/assets/258b3be4-96c6-46aa-8d22-cfd2a2474b9a" />
+
+
+https://github.com/user-attachments/assets/2e73409b-a701-48cc-a19d-a93294e3804c
+
+---
+
 ## 📂 Project Structure
 
 ```text
